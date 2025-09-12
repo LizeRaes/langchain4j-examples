@@ -45,7 +45,7 @@ public class _5_Conditional_Workflow_Example {
                 .build();
 
         // 4. Build the conditional workflow
-        UntypedAgent candidateResponder = AgenticServices // use UntypedAgent unless you define the resulting compound agent, see _2_Sequential_Agent_Example
+        UntypedAgent candidateResponder = AgenticServices // use UntypedAgent unless you define the resulting composed agent, see _2_Sequential_Agent_Example
                 .conditionalBuilder()
                 .subAgents( agenticScope -> ((CvReview) agenticScope.readState("cvReview")).score>=0.8, interviewOrganizer)
                 .subAgents( agenticScope -> ((CvReview) agenticScope.readState("cvReview")).score<0.8, emailAssistant)

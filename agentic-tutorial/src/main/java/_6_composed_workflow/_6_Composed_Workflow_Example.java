@@ -198,5 +198,7 @@ public class _6_Composed_Workflow_Example {
         System.out.println("=== HIRING TEAM WORKFLOW COMPLETED ===");
         System.out.println("Parallel reviews completed and decision made");
 
+        // TODO mario if you async in composed agent block, the whole block still waits till all agents are done before continuing to the next (super-)block in the workflow, right?
+
     }
 }

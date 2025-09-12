@@ -57,7 +57,7 @@ public class _4_Parallel_Workflow_Example {
                 .build();
 
         // 4. Build the sequence
-        UntypedAgent cvReviewGenerator = AgenticServices // use UntypedAgent unless you define the resulting compound agent, see _2_Sequential_Agent_Example
+        UntypedAgent cvReviewGenerator = AgenticServices // use UntypedAgent unless you define the resulting composed agent, see _2_Sequential_Agent_Example
                 .parallelBuilder()
                 .subAgents(hrCvReviewer, managerCvReviewer, teamMemberCvReviewer) // this can be as many as you want
                 .executor(Executors.newFixedThreadPool(3)) // optional, by default an internal cached thread pool is used
@@ -93,7 +93,7 @@ public class _4_Parallel_Workflow_Example {
                 ,"phoneInterviewNotes", phoneInterviewNotes
         );
 
-        // 5. Call the compound agent to generate the tailored CV
+        // 5. Call the composed agent to generate the tailored CV
         var review = cvReviewGenerator.invoke(arguments);
 
         // 6. and print the generated CV

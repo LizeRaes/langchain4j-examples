@@ -48,7 +48,7 @@ public class _3_Loop_Agent_Example {
                 .build();
 
         // 4. Build the sequence
-        UntypedAgent reviewedCvGenerator = AgenticServices // use UntypedAgent unless you define the resulting compound agent, see _2_Sequential_Agent_Example
+        UntypedAgent reviewedCvGenerator = AgenticServices // use UntypedAgent unless you define the resulting composed agent, see _2_Sequential_Agent_Example
                 .loopBuilder().subAgents(scoredCvTailor, cvReviewer) // this can be as many as you want, order matters
                 .outputName("cv") // this is the final output we want to observe (the improved CV)
                 .exitCondition(agenticScope -> {
@@ -75,7 +75,7 @@ public class _3_Loop_Agent_Example {
                 "jobDescription", jobDescription
         );
 
-        // 5. Call the compound agent to generate the tailored CV
+        // 5. Call the composed agent to generate the tailored CV
         String tailoredCv = (String) reviewedCvGenerator.invoke(arguments);
 
         // 6. and print the generated CV
@@ -114,7 +114,7 @@ public class _3_Loop_Agent_Example {
 
         List<CvReview> reviewHistory = new ArrayList<>();
 
-        UntypedAgent reviewedCvGeneratorWithExitCheck = AgenticServices // use UntypedAgent unless you define the resulting compound agent, see below
+        UntypedAgent reviewedCvGeneratorWithExitCheck = AgenticServices // use UntypedAgent unless you define the resulting composed agent, see below
                 .loopBuilder().subAgents(scoredCvTailor, cvReviewer) // this can be as many as you want, order matters
                 .outputName("cvAndReview") // this is the final output we want to observe
                 .output(agenticScope -> {
