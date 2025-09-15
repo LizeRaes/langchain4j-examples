@@ -27,7 +27,9 @@ import java.io.IOException;
  * He is supposed to runs HR/Manager/Team reviews and either schedule
  * an interview or send a rejection email.
  * Just like part 2 of the Composed Workflow example, but now 'self-organised'
- * Note that supervisor super-agents can be used in composed workflows just like the other super- agent types.
+ * Note that supervisor super-agents can be used in composed workflows just like the other super-agent types.
+ * IMPORTANT: this example takes about 50s to run with GPT-4o-mini. You can see what is happening continuously in the PRETTY logs.
+ * There are ways to speed up execution, see comments at the end of this file.
  */
 public class _7a_Supervisor_Orchestration {
 
@@ -35,7 +37,11 @@ public class _7a_Supervisor_Orchestration {
         CustomLogging.setLevel(LogLevels.PRETTY, 200);  // control how much you see from the model calls
     }
 
-    private static final ChatModel CHAT_MODEL = ChatModelProvider.createChatModel();
+    private static final ChatModel CHAT_MODEL = ChatModelProvider.createChatModel("CEREBRAS");
+
+    // TODO try typed output for supervisor? (sub-agents can be all typed)
+    // https://github.com/langchain4j/langchain4j/blob/5f061f528c808425c49234b22ee003b0d5adab2f/langchain4j-agentic/src/test/java/dev/langchain4j/agentic/SupervisorAgentIT.java#L355
+    // if you do .output() then responseStrategy is overwritten
 
     public static void main(String[] args) throws IOException {
 
@@ -45,15 +51,8 @@ public class _7a_Supervisor_Orchestration {
                 .outputName("hrReview")
                 .build();
         // importantly, if we use the same method names for multiple agents
-        // (in this case: 'reviewCv' for all reviewers) we need to name our agents, like this:
+        // (in this case: 'reviewCv' for all reviewers) we best name our agents, like this:
         // @Agent(name = "managerReviewer", description = "Reviews a CV based on a job description, gives feedback and a score")
-        // TODO Mario is this really desired behavior? even with different signatures and descriptions?
-        // TODO log excerpt when I named one of the three:
-        // The comma separated list of available agents is:
-        //'{reviewCv: Reviews a CV to see if candidate fits in the team, gives feedback and a score, [candidateCv]},
-        // {organize: Organizes on-site interviews with applicants, [candidateContact, jobDescription]},
-        // {hrReviewer: Reviews a CV to check if candidate fits HR requirements, gives feedback and a score, [candidateCv, phoneInterviewNotes, hrRequirements]},
-        // {send: Sends rejection emails to candidates that didn't pass, [candidateContact, jobDescription]}'
 
         ManagerCvReviewer managerReviewer = AgenticServices.agentBuilder(ManagerCvReviewer.class)
                 .chatModel(CHAT_MODEL)
@@ -83,7 +82,9 @@ public class _7a_Supervisor_Orchestration {
                 .responseStrategy(SupervisorResponseStrategy.SUMMARY) // we want a summary of what happened, rather than retrieving a response
                 .supervisorContext("Always use the full panel of available reviewers. Always answer in English. When invoking agent, use pure JSON (no backticks, and new lines as backslash+n).") // optional context for the supervisor on how to behave
                 .build();
-        // TODO Mario: is parallel execution possible here? it seems not, would be nice to have
+        // Important to know: the supervisor will invoke 1 agent at a time and then review his plan to choose which agent to invoke next
+        // It is not possible to have agents executed in parallel by the supervisor
+        // If agents are marked as async, the supervisor will override that (no async execution) and issue a warning
 
         // 3. Load candidate CV & job description
         String jobDescription = StringLoader.loadFromResource("/documents/job_description_backend.txt");
@@ -104,7 +105,8 @@ public class _7a_Supervisor_Orchestration {
                         "Phone Interview Notes:\n" + phoneInterviewNotes
         );
         long end = System.nanoTime();
-        double elapsedSeconds = (end - start) / 1_000_000_000.0;  // Convert to seconds
+        double elapsedSeconds = (end - start) / 1_000_000_000.0;
+        // in the logs you'll notice a final invocation of agent 'done', this is how the supervisor finishes the invocation series
 
         System.out.println("=== SUPERVISOR RUN COMPLETED in " + elapsedSeconds + " seconds ===");
         System.out.println(result);

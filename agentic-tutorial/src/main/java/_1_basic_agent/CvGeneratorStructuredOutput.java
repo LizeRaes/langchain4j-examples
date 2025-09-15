@@ -5,7 +5,6 @@ import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 import domain.Cv;
 
-// TODO output as structured data? List<Experience>, List<Skill> etc
 public interface CvGeneratorStructuredOutput {
     @UserMessage("""
             Here is information on my life and professional trajectory

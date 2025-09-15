@@ -12,7 +12,7 @@ import util.log.LogLevels;
 import java.io.IOException;
 import java.util.Map;
 
-public class _5_Conditional_Workflow_Example {
+public class _5a_Conditional_Workflow_Example {
 
     static {
         CustomLogging.setLevel(LogLevels.PRETTY, 300);  // control how much you see from the model calls
@@ -50,20 +50,16 @@ public class _5_Conditional_Workflow_Example {
                 .subAgents( agenticScope -> ((CvReview) agenticScope.readState("cvReview")).score>=0.8, interviewOrganizer)
                 .subAgents( agenticScope -> ((CvReview) agenticScope.readState("cvReview")).score<0.8, emailAssistant)
                 .build();
-        // TODO what happens if multiple conditions are satisfied? parallellism?
-        // TODO make a proper log interceptor + cleaner for this demo or agenticscope log printer to keep track step by step
+        // Good to know: when multiple conditions are defined, they are all executed in sequence.
+        // If you want parallel execution here, use async agents, as demonstrated in _5b_Conditional_Workflow_Example_Async
 
         // 5. Load the arguments from text files in resources/documents/
-        // - candidate_contacts.txt
-        // - candidate_cv.txt
-        // - job_description_backend.txt
         String candidateCv = StringLoader.loadFromResource("/documents/tailored_cv.txt");
         String candidateContact = StringLoader.loadFromResource("/documents/candidate_contact.txt");
         String jobDescription = StringLoader.loadFromResource("/documents/job_description_backend.txt");
         CvReview cvReviewFail = new CvReview(0.6, "The CV is good but lacks some technical details relevant for the backend position.");
         CvReview cvReviewPass = new CvReview(0.9, "The CV is excellent and matches all requirements for the backend position.");
 
-        // TODO non-AI agent for the email sending (is just a template and an email address)
         // 5. Because we use an untyped agent, we need to pass a map of all input arguments
         Map<String, Object> arguments = Map.of(
                 "candidateCv", candidateCv,
@@ -75,36 +71,35 @@ public class _5_Conditional_Workflow_Example {
         // 5. Call the conditional agent to respond to the candidate in line with the review
         candidateResponder.invoke(arguments);
         // in this example, we didn't make meaningful changes to the AgenticScope
-        // and we don't have a meaningful output to print.
+        // and we don't have a meaningful output to print, since the tools executed the final action.
         // we print to the console which actions were taken by the tools (emails sent, application status updated)
 
         // when you observe the logs in debug mode, the tool call result 'success' is still sent to the model
         // and the model still answers something like "The email has been sent to John Doe informing him ..."
 
-        // if you don't want the resource-wasteful sending of these tool results back to the model
-        // you can add @Tool(returnBehavior = ReturnBehavior.IMMEDIATE)`
+        // For info: if tools are your last actions and you don't want to call the model back afterwards,
+        // you will typically add @Tool(returnBehavior = ReturnBehavior.IMMEDIATE)`
         // https://docs.langchain4j.dev/tutorials/tools#returning-immediately-the-result-of-a-tool-execution-request
-        // (to be used with great care as it could cut the execution flow short if you need multiple tools to be called)
+        // !!! BUT in agentic workflows IMMEDIATE RETURN BEHAVIOR for tools is NOT RECOMMENDED,
+        // since immediate return behavior will store the tool result in the AgenticScope and things can go wrong
 
-
-        // TODO Mario what if we want to change sth in the agenticScope using a tool?
-        // can we pass it to a tool? (check non-AI agents, maybe those can be used)
-
-
-
-
-        // Note: a similar routing behavior can be obtained by using AiServices as tools, like this
+        // For info: this was an example of routing behavior with a code check on the conditions.
+        // Routing behavior can also be obtained by letting an LLM determine the best tool(s)/agent(s)
+        // to continue with, either by using
+        // - Supervisor agent: will operate on agents, see _7_supervisor_orchestration
+        // - AiServices as tools, like this
         // RouterService routerService = AiServices.builder(RouterAgent.class)
         //        .chatModel(model)
         //        .tools(medicalExpert, legalExpert, technicalExpert)
         //        .build();
+        //
         // The best option depends on your use case:
-        // With conditional agents, you hardcode call criteria
-        // With AiServices, the LLM decide which expert(s) to call
-        // With conditional agents, all intermediary states and the call chain are stored in AgenticScope
-        // TODO check if the above is true
-        // With AiServices it is much harder to track the call chain,
-        // and there is no AgenticScope for intermediary parameters.
+        //
+        // - With conditional agents, you hardcode call criteria
+        // - Vs. with AiServices or Supervisor, the LLM decide which expert(s) to call
+        //
+        // - With agentic solutions (conditional, supervisor) all intermediary states and the call chain are stored in AgenticScope
+        // - Vs. with AiServices it is much harder to track the call chain or intermediary states
 
     }
 }

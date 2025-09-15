@@ -7,6 +7,7 @@ import _5_conditional_workflow.EmailAssistant;
 import _5_conditional_workflow.InterviewOrganizer;
 import _5_conditional_workflow.OrganizingTools;
 import dev.langchain4j.agentic.AgenticServices;
+import dev.langchain4j.agentic.scope.ResultWithAgenticScope;
 import dev.langchain4j.agentic.supervisor.SupervisorContextStrategy;
 import dev.langchain4j.agentic.supervisor.SupervisorResponseStrategy;
 import dev.langchain4j.model.chat.ChatModel;
@@ -76,14 +77,11 @@ public class _7b_Supervisor_Orchestration_Advanced {
                 .supervisorBuilder(HiringSupervisor.class)
                 .chatModel(CHAT_MODEL)
                 .subAgents(hrReviewer, managerReviewer, teamReviewer, interviewOrganizer, emailAssistant)
-                .contextGenerationStrategy(SupervisorContextStrategy.CHAT_MEMORY_AND_SUMMARIZATION) // TODO figure out what this really does or brings
+                .contextGenerationStrategy(SupervisorContextStrategy.CHAT_MEMORY_AND_SUMMARIZATION)
+                // depending on what your supervisor needs to know about what the sub-agents have been doing,
+                // you can choose contextGenerationStrategy CHAT_MEMORY, SUMMARIZATION, or CHAT_MEMORY_AND_SUMMARIZATION
                 .responseStrategy(SupervisorResponseStrategy.SCORED) // this strategy uses a scorer model to decide weather the LAST response or the SUMMARY solves the user request best
-                .output(agenticScope -> {
-                    // Collect the context at every step
-                    contextRef.set(agenticScope.contextAsConversation());
-                    // Return whatever the supervisor would normally output
-                    return agenticScope.readState("response"); // TODO this goes against responseStrategy...
-                })
+                // an output function here would override the response strategy
                 .supervisorContext("Policy: Always check HR first, escalate if needed, reject low-fit.")
                 .build();
 
@@ -102,19 +100,16 @@ public class _7b_Supervisor_Orchestration_Advanced {
                 + "Phone Interview Notes:\n" + phoneInterviewNotes;
 
         // 4. Invoke supervisor
-        System.out.println("=== Running Supervisor ===");
-
         long start = System.nanoTime();
-        String decision = (String) hiringSupervisor.invoke(request, "Manager technical review is most important.");
+        ResultWithAgenticScope<String> decision = hiringSupervisor.invoke(request, "Manager technical review is most important.");
         long end = System.nanoTime();
 
         System.out.println("=== Hiring Supervisor finished in " + ((end - start) / 1_000_000_000.0) + "s ===");
-        System.out.println(decision);
+        System.out.println(decision.result());
 
         // Print collected contexts
         System.out.println("\n=== Context as Conversation ===");
-        System.out.println(contextRef.get());
-        // TODO Mario this is empty
+        System.out.println(decision.agenticScope().contextAsConversation()); // will work in next release
 
     }
 }
