@@ -1,4 +1,4 @@
-John Doe – Backend Engineer
+Jan Doe – Backend Engineer
 Email: john.doe.dev@protonmail.com | Antwerp, Belgium |
 SUMMARY
 Backend engineer with 4+ years’ experience building applications in Java (Spring Boot) and PostgreSQL. Focused on pragmatic delivery and collaboration in small teams.

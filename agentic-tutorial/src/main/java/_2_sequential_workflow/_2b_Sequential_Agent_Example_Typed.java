@@ -5,6 +5,7 @@ import dev.langchain4j.agentic.AgenticServices;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.agentic.scope.ResultWithAgenticScope;
 import dev.langchain4j.model.chat.ChatModel;
+import domain.Cv;
 import util.AgenticScopePrinter;
 import util.ChatModelProvider;
 import util.StringLoader;
@@ -66,57 +67,14 @@ public class _2b_Sequential_Agent_Example_Typed {
         SequenceCvGenerator sequenceCvGenerator = AgenticServices
                 .sequenceBuilder(SequenceCvGenerator.class) // here we specify the typed interface
                 .subAgents(cvGenerator, cvTailor)
-                .outputName("bothCvsAndLifeStory")
-                .output(agenticScope -> { // any method is possible, but we collect some internal variables.
-                    Map<String, String> bothCvsAndLifeStory = Map.of(
-                            "lifeStory", agenticScope.readState("lifeStory", ""),
-                            "masterCv", agenticScope.readState("masterCv", ""),
-                            "tailoredCv", agenticScope.readState("tailoredCv", "")
-                    );
-                    return bothCvsAndLifeStory;
-                    })
+                .outputName("tailoredCv")
                 .build();
 
         // 6. Call the typed composed agent
-        ResultWithAgenticScope<Map<String,String>> bothCvsAndScope = sequenceCvGenerator.generateTailoredCv(lifeStory, instructions);
+        Cv finalCv = sequenceCvGenerator.generateTailoredCv(lifeStory, instructions);
 
-        // 7. Extract result and agenticScope
-        AgenticScope agenticScope = bothCvsAndScope.agenticScope();
-        Map<String,String> bothCvsAndLifeStory = bothCvsAndScope.result();
-
-        System.out.println("=== USER INFO (input) ===");
-        String userStory = bothCvsAndLifeStory.get("lifeStory");
-        System.out.println(userStory.length() > 100 ? userStory.substring(0, 100) + " [truncated...]" : lifeStory);
-        System.out.println("=== MASTER CV TYPED (intermediary variable) ===");
-        String masterCv = bothCvsAndLifeStory.get("masterCv");
-        System.out.println(masterCv.length() > 100 ? masterCv.substring(0, 100) + " [truncated...]" : masterCv);
-        System.out.println("=== TAILORED CV TYPED (output) ===");
-        String tailoredCv = bothCvsAndLifeStory.get("tailoredCv");
-        System.out.println(tailoredCv.length() > 100 ? tailoredCv.substring(0, 100) + " [truncated...]" : tailoredCv);
-
-        // Both untyped and typed agents give the same tailoredCv result
-        // (any differences are due to the non-deterministic nature of LLMs),
-        // but the typed agent is more elegant to use and safer because of compile-time type checking
-
-        System.out.println("=== AGENTIC SCOPE ===");
-        System.out.println(AgenticScopePrinter.printPretty(agenticScope, 100));
-        // this will return this object (filled out):
-        // AgenticScope {
-        //     memoryId = "e705028d-e90e-47df-9709-95953e84878c",
-        //             state = {
-        //                     bothCvsAndLifeStory = { // output
-        //                             masterCv = "...",
-        //                            lifeStory = "...",
-        //                            tailoredCv = "..."
-        //                     },
-        //                     instructions = "...", // inputs and intermediary variables
-        //                     tailoredCv = "...",
-        //                     masterCv = "...",
-        //                     lifeStory = "..."
-        //             }
-        // }
-        System.out.println("=== CONTEXT AS CONVERSATION (all messages in the conversation) ===");
-        System.out.println(AgenticScopePrinter.printConversation(agenticScope.contextAsConversation(), 100));
+        System.out.println("=== FINAL CV ===");
+        System.out.println(finalCv);
 
     }
 }

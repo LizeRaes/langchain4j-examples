@@ -113,4 +113,104 @@ public class AgenticScopePrinter {
         return sb.toString().trim();
     }
 
+    public static String printAgentInvocations(Object agentInvocations, int maxChars) {
+        if (agentInvocations == null) {
+            return "null";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        String invocationStr = agentInvocations.toString();
+        
+        // Handle the case where agentInvocations is a list or array
+        if (invocationStr.startsWith("[") && invocationStr.endsWith("]")) {
+            // Remove outer brackets and split by AgentInvocation entries
+            String content = invocationStr.substring(1, invocationStr.length() - 1);
+            
+            // Split by AgentInvocation{ pattern, but keep the pattern
+            String[] parts = content.split("(?=AgentInvocation\\{)");
+            
+            for (int i = 0; i < parts.length; i++) {
+                String part = parts[i].trim();
+                if (part.isEmpty()) continue;
+                
+                if (i > 0) {
+                    sb.append("\n\n");
+                }
+                
+                sb.append("AgentInvocation {\n");
+                
+                // Extract agentName
+                Pattern agentNamePattern = Pattern.compile("agentName=([^,}]+)");
+                Matcher agentNameMatcher = agentNamePattern.matcher(part);
+                if (agentNameMatcher.find()) {
+                    String agentName = agentNameMatcher.group(1);
+                    sb.append("  agentName: ").append(agentName).append("\n");
+                }
+                
+                // Extract input
+                Pattern inputPattern = Pattern.compile("input=\\{([^}]+(?:\\{[^}]*\\}[^}]*)*)\\}");
+                Matcher inputMatcher = inputPattern.matcher(part);
+                if (inputMatcher.find()) {
+                    String input = inputMatcher.group(1);
+                    sb.append("  input: {\n");
+                    sb.append(formatMapContent(input, maxChars, "    "));
+                    sb.append("\n  }\n");
+                }
+                
+                // Extract output - everything after "output=" until the end of the part
+                int outputIndex = part.indexOf("output=");
+                if (outputIndex >= 0) {
+                    String output = part.substring(outputIndex + 7).trim(); // +7 for "output="
+                    sb.append("  output: ");
+                    if (output.length() > maxChars) {
+                        sb.append(output, 0, maxChars).append(" [truncated...]");
+                    } else {
+                        sb.append(output);
+                    }
+                    sb.append("\n");
+                }
+                
+                sb.append("}");
+            }
+        } else {
+            // Handle single invocation or other formats
+            if (invocationStr.length() > maxChars) {
+                sb.append(invocationStr, 0, maxChars).append(" [truncated...]");
+            } else {
+                sb.append(invocationStr);
+            }
+        }
+        
+        return sb.toString();
+    }
+    
+    private static String formatMapContent(String mapContent, int maxChars, String indent) {
+        StringBuilder sb = new StringBuilder();
+        
+        // Simple approach: find the first = and treat everything before as key, after as value
+        int firstEquals = mapContent.indexOf('=');
+        if (firstEquals > 0) {
+            String key = mapContent.substring(0, firstEquals).trim();
+            String value = mapContent.substring(firstEquals + 1).trim();
+            
+            sb.append(indent).append(key).append(": ");
+            
+            // For long values, truncate the entire value as a whole
+            if (value.length() > maxChars) {
+                sb.append(value, 0, maxChars).append(" [truncated...]");
+            } else {
+                sb.append(value);
+            }
+        } else {
+            // No equals found, treat as single value
+            if (mapContent.length() > maxChars) {
+                sb.append(indent).append(mapContent, 0, maxChars).append(" [truncated...]");
+            } else {
+                sb.append(indent).append(mapContent);
+            }
+        }
+        
+        return sb.toString();
+    }
+
 }

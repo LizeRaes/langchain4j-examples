@@ -1,4 +1,4 @@
-John Doe is based in Antwerp, Belgium (Rue des Carmes 12, 2000 Antwerp) and can be reached at john.doe.dev@protonmail.com
+Jan Doe is based in Antwerp, Belgium (Beenhouwerstraat 12, 2000 Antwerp) and can be reached at john.doe.dev@protonmail.com
  or +32 495 67 89 23. He’s active on LinkedIn
  and GitHub.
 - Switched from mechanical engineering to software in 2020 after completing an evening Java bootcamp (2019–2020).

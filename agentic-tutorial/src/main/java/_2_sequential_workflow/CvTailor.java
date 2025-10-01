@@ -4,6 +4,7 @@ import dev.langchain4j.agentic.Agent;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
+import domain.Cv;
 
 public interface CvTailor {
 
@@ -18,5 +19,5 @@ public interface CvTailor {
     @UserMessage("""
                 Here are the instructions for tailoring the CV: {{instructions}}
                 """)
-    String tailorCv(@V("masterCv") String masterCv, @V("instructions") String instructions);
+    Cv tailorCv(@V("masterCv") String masterCv, @V("instructions") String instructions);
 }

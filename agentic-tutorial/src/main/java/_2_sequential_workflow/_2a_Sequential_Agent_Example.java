@@ -4,6 +4,7 @@ import _1_basic_agent.CvGenerator;
 import dev.langchain4j.agentic.AgenticServices;
 import dev.langchain4j.agentic.UntypedAgent;
 import dev.langchain4j.model.chat.ChatModel;
+import domain.Cv;
 import util.ChatModelProvider;
 import util.StringLoader;
 import util.log.CustomLogging;
@@ -77,11 +78,11 @@ public class _2a_Sequential_Agent_Example {
         );
 
         // 5. Call the composed agent to generate the tailored CV
-        String tailoredCv = (String) tailoredCvGenerator.invoke(arguments);
+        Cv tailoredCv = (Cv) tailoredCvGenerator.invoke(arguments);
 
         // 6. and print the generated CV
         System.out.println("=== TAILORED CV UNTYPED ===");
-        System.out.println((String) tailoredCv); // you can observe that the CV looks very different
+        System.out.println(tailoredCv); // you can observe that the CV looks very different
         // when you'd use job_description_fullstack.txt as input
 
         // In example 2b we'll build the same sequential agent but with typed output,

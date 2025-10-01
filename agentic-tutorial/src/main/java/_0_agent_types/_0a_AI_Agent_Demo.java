@@ -6,11 +6,9 @@ import util.ChatModelProvider;
 import util.log.CustomLogging;
 import util.log.LogLevels;
 
-import java.util.List;
-
 public class _0a_AI_Agent_Demo {
     static {
-        CustomLogging.setLevel(LogLevels.INFO, 300);
+        CustomLogging.setLevel(LogLevels.PRETTY, 300);  // control how much you see from the model calls
     }
 
     private static final ChatModel CHAT_MODEL = ChatModelProvider.createChatModel();
@@ -18,17 +16,14 @@ public class _0a_AI_Agent_Demo {
     public static void main(String[] args) {
         System.out.println("=== AI Agent Demo: Meal Planning with Tools ===");
 
+        UserProfile userProfile = new UserProfile(); // prefilled for demo
+
         MealPlannerAgent mealPlanner = AgenticServices
                 .agentBuilder(MealPlannerAgent.class)
                 .chatModel(CHAT_MODEL)
                 .tools(new NutritionContentRetriever())
                 .outputName("meal")
                 .build();
-
-        UserProfile userProfile = new UserProfile();
-        userProfile.favoriteIngredients = List.of("rice", "broccoli", "chicken", "salmon", "eggs", "spinach", "carrots", "potato", "milk");
-        userProfile.allergies = List.of("peanuts", "shellfish");
-        userProfile.healthGoal = "high protein";
 
         Meal meal = mealPlanner.createMeal(userProfile);
 
