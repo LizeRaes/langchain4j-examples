@@ -13,12 +13,11 @@ public class ReturnImmediateDemo {
         ChatModel model = OpenAiChatModel.builder()
                 .apiKey(System.getenv("OPENAI_API_KEY"))
                 .modelName(GPT_4_O_MINI)
-                .logRequests(true)
-                .logResponses(true)
                 .build();
 
         Assistant assistant = AiServices.builder(Assistant.class)
                 .chatModel(model)
+                .toolProvider(BookingToolProvider.create()) // Add booking tools that are conditionally exposed
                 .build();
 
         ToolCallingAiService aiService = AiServices.builder(ToolCallingAiService.class)
