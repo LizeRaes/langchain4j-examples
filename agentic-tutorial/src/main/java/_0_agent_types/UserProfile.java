@@ -6,7 +6,15 @@ public class UserProfile {
     public List<String> favoriteIngredients;
     public List<String> allergies;
     public String healthGoal;
-    
+
+    public UserProfile(){}
+
+    public UserProfile(List<String> favoriteIngredients, List<String> allergies, String healthGoal) {
+        this.favoriteIngredients = favoriteIngredients;
+        this.allergies = allergies;
+        this.healthGoal = healthGoal;
+    }
+
     @Override
     public String toString() {
         return "User Profile\n" +

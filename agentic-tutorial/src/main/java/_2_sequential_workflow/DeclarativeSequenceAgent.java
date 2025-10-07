@@ -7,7 +7,7 @@ import dev.langchain4j.service.V;
 import domain.Cv;
 
 public interface DeclarativeSequenceAgent {
-    @SequenceAgent(outputName = "tailoredCv", description = "Generates tailored CV",
+        @SequenceAgent(outputName = "tailoredCv", description = "Generates tailored CV",
             subAgents = {
                     @SubAgent(type = CvGenerator.class, outputName = "masterCv"),
                     @SubAgent(type = CvTailor.class, outputName = "tailoredCv")
