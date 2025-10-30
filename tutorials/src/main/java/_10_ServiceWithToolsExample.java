@@ -43,6 +43,8 @@ public class _10_ServiceWithToolsExample {
                 .apiKey(ApiKeys.OPENAI_API_KEY) // WARNING! Tools are not supported with "demo" API key
                 .modelName(GPT_4_O_MINI)
                 .strictTools(true) // https://docs.langchain4j.dev/integrations/language-models/open-ai#structured-outputs-for-tools
+                .logRequests(true)
+                .logResponses(true)
                 .build();
 
         Assistant assistant = AiServices.builder(Assistant.class)

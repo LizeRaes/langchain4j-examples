@@ -31,10 +31,10 @@ public class ReturnImmediateDemo {
         int mathToolResult = (int) aiServiceMathResult.toolExecutions().get(0).resultObject();
         System.out.println("Math Tool result: " + mathToolResult);
 
-        Result<String> aiServiceBookingResult = aiService.callAiService("Cancel booking 12345");
-        String answer = (String) aiServiceBookingResult.content();
-        System.out.println("Booking Service answer: " + answer);
-        // should be dummy: "Booking " + bookingNumber + " has been successfully canceled."
+//        Result<String> aiServiceBookingResult = aiService.callAiService("Cancel booking 12345");
+//        String answer = (String) aiServiceBookingResult.content();
+//        System.out.println("Booking Service answer: " + answer);
+//        // should be dummy: "Booking " + bookingNumber + " has been successfully canceled."
 
     }
 }
